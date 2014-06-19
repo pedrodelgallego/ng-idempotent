@@ -15,6 +15,7 @@
         },
 
         get: function(endpoint) {
+          var uuid = ngIdempotent.generateUUID();
           $http.get(endpoint);
         }
       };

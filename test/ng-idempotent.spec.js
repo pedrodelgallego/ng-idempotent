@@ -33,9 +33,21 @@ describe('', function(){
       $httpBackend.flush();
     });
 
+    it('should create a UUID for this specific message', function(){
+      $httpBackend.
+        when('GET', endpoint).
+        respond({collection: [{}, {}]}, {});
+
+      spyOn(sut, 'generateUUID');
+      sut.get(endpoint);
+      expect(sut.generateUUID).toHaveBeenCalled();
+      $httpBackend.flush();
+    });
+
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend.verifyNoOutstandingRequest();
     });
   });
+
 });
