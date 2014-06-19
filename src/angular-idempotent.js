@@ -14,7 +14,8 @@
           });
         },
 
-        get: function(){
+        get: function(endpoint) {
+          $http.get(endpoint);
         }
       };
 
