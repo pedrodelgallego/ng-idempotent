@@ -9,7 +9,11 @@ describe('', function(){
     sut = $injector.get('$idempotent');
   }));
 
-  it('should create a module', function(){
-    expect(sut).toBeDefined();
+  it('should create a module', function(){ expect(sut).toBeDefined(); });
+
+
+  describe('.get', function(){
+    it('can be call', function(){ expect(typeof sut.get).toBe('function'); });
+
   });
 });
