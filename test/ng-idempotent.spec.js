@@ -32,5 +32,10 @@ describe('', function(){
       $httpBackend.expectGET(endpoint);
       $httpBackend.flush();
     });
+
+    afterEach(function() {
+      $httpBackend.verifyNoOutstandingExpectation();
+      $httpBackend.verifyNoOutstandingRequest();
+    });
   });
 });
