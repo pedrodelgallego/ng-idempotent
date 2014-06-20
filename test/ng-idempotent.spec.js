@@ -44,6 +44,12 @@ describe('', function(){
       $httpBackend.flush();
     });
 
+    it('should repeat the retry the get', function() {
+      $httpBackend.whenGET(endpoint).respond(500);
+      sut.get(endpoint);
+      $httpBackend.flush();
+    });
+
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend.verifyNoOutstandingRequest();
