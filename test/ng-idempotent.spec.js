@@ -1,6 +1,6 @@
 'use strict';
 
-describe('', function(){
+describe('$idempotent', function(){
   var sut, $httpBackend, endpoint = 'an/end/point';
 
   beforeEach(module('ngIdempotent'));
@@ -18,7 +18,7 @@ describe('', function(){
       $httpBackend = $injector.get("$httpBackend");
     }));
 
-    it('can be call', function(){
+    it('can be callable', function(){
       expect(typeof sut.get).toBe('function');
     });
 
@@ -26,10 +26,24 @@ describe('', function(){
       $httpBackend.
         when('GET', endpoint).
         respond({collection: [{}, {}]}, {});
-
       sut.get(endpoint);
 
       $httpBackend.expectGET(endpoint);
+      $httpBackend.flush();
+    });
+
+    it('should add the uuid to the tracker', function(){
+      $httpBackend.when('GET', endpoint).respond(200, '');
+      sut.get(endpoint);
+
+      var numberOfMessages = 0;
+      for (var i in sut.tracker){
+        numberOfMessages++;
+        expect(i.length).toBe(48);
+      }
+      expect(numberOfMessages).toBe(1)
+
+      expect(sut.tracker)
       $httpBackend.flush();
     });
 
