@@ -4,6 +4,11 @@
   angular.module('ngIdempotent', [])
     .factory('$idempotent', ['$http', '$q', '$timeout', function($http, $q, $timeout) {
       // var $resourceMinErr = angular.$$minErr('$idempotent');
+      function Message(uuid){
+        this.status = ngIdempotent.IN_PROGRESS;
+        this.UUID = uuid;
+      };
+
       var ngIdempotent = {
         IN_PROGRESS: "in progress",
 
@@ -17,11 +22,15 @@
         },
 
         get: function(endpoint) {
+          var deferred = $q.defer();
+
           var uuid = ngIdempotent.generateUUID();
           ngIdempotent.tracker[uuid] = {
             status: ngIdempotent.IN_PROGRESS
           };
           $http.get(endpoint);
+
+          return deferred.promise;
         }
       };
 

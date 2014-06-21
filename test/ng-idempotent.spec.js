@@ -41,8 +41,8 @@ describe('$idempotent', function(){
         numberOfMessages++;
         expect(i.length).toBe(48);
       }
-      expect(numberOfMessages).toBe(1)
 
+      expect(numberOfMessages).toBe(1)
       expect(sut.tracker)
       $httpBackend.flush();
     });
@@ -63,6 +63,16 @@ describe('$idempotent', function(){
       sut.get(endpoint);
       $httpBackend.flush();
     });
+
+    it('returns a $q promise', function(){
+      $httpBackend.
+        when('GET', endpoint).
+        respond({collection: [{}, {}]}, {});
+
+      var promise = sut.get(endpoint);
+      expect(typeof promise.then).toBe('function');
+      $httpBackend.flush();
+    })
 
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
