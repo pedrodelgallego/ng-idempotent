@@ -48,10 +48,7 @@ describe('$idempotent', function(){
     });
 
     it('should create a UUID for this specific message', function(){
-      $httpBackend.
-        when('GET', endpoint).
-        respond({collection: [{}, {}]}, {});
-
+      $httpBackend.when('GET', endpoint).respond(500,'')
       spyOn(sut, 'generateUUID');
       sut.get(endpoint);
       expect(sut.generateUUID).toHaveBeenCalled();
@@ -65,14 +62,22 @@ describe('$idempotent', function(){
     });
 
     it('returns a $q promise', function(){
-      $httpBackend.
-        when('GET', endpoint).
-        respond({collection: [{}, {}]}, {});
+      $httpBackend.when('GET', endpoint).respond(500,'')
+
+      var promise = sut.get(endpoint);
+      expect(typeof promise.then).toBe('function');
+      $httpBackend.flush();
+    });
+
+
+    it('returns a $q promise', function(){
+      $httpBackend.when('GET', endpoint).respond(500,'')
 
       var promise = sut.get(endpoint);
       expect(typeof promise.then).toBe('function');
       $httpBackend.flush();
     })
+
 
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
