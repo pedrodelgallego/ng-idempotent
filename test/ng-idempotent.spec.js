@@ -69,7 +69,6 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     });
 
-
     it('returns a $q promise', function(){
       $httpBackend.when('GET', endpoint).respond(500,'')
 
@@ -78,6 +77,13 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     })
 
+    it('returns a primise with a message', function(){
+      $httpBackend.when('GET', endpoint).respond(500,'')
+
+      var promise = sut.get(endpoint);
+      expect(promise.message.messageType).toBe(sut.GET_MESSAGE);
+      $httpBackend.flush();
+    })
 
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();

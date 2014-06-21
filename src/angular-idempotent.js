@@ -5,12 +5,15 @@
     .factory('$idempotent', ['$http', '$q', '$timeout', function($http, $q, $timeout) {
       // var $resourceMinErr = angular.$$minErr('$idempotent');
       function Message(uuid){
+        this.messageType = ngIdempotent.GET_MESSAGE;
         this.status = ngIdempotent.IN_PROGRESS;
         this.UUID = uuid;
       };
 
       var ngIdempotent = {
-        IN_PROGRESS: "in progress",
+        IN_PROGRESS: "in_progress",
+        GET_MESSAGE: "get_message",
+
 
         tracker: {},
 
@@ -22,15 +25,17 @@
         },
 
         get: function(endpoint) {
-          var deferred = $q.defer();
+          var deferred = $q.defer(),
+              promise = deferred.promise,
+              uuid = ngIdempotent.generateUUID();
 
-          var uuid = ngIdempotent.generateUUID();
-          ngIdempotent.tracker[uuid] = {
-            status: ngIdempotent.IN_PROGRESS
-          };
+          ngIdempotent.tracker[uuid] = new Message(uuid);
+          promise.message = ngIdempotent.tracker[uuid];
+
           $http.get(endpoint);
 
-          return deferred.promise;
+
+          return promise;
         }
       };
 
