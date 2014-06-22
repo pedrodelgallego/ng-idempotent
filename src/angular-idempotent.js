@@ -12,8 +12,8 @@
 
       var ngIdempotent = {
         IN_PROGRESS: "in_progress",
-        GET_MESSAGE: "get_message",
 
+        GET_MESSAGE: "GET",
 
         tracker: {},
 
@@ -25,15 +25,30 @@
         },
 
         get: function(endpoint) {
+          debugger;
           var deferred = $q.defer(),
-              promise = deferred.promise,
+              promise  = deferred.promise,
               uuid = ngIdempotent.generateUUID();
 
           ngIdempotent.tracker[uuid] = new Message(uuid);
           promise.message = ngIdempotent.tracker[uuid];
 
-          $http.get(endpoint);
 
+          promise.success = function(fn) {
+            promise.then(function(resolved) {
+              fn(resolved.data, resolved.status, resolved.headers, resolved.config);
+            });
+            return promise;
+          };
+
+          $http.get(endpoint).success(function(response, status, headers, config){
+            deferred.resolve({
+              data: response,
+              status: status,
+              headers: headers,
+              config: config
+            });
+          });
 
           return promise;
         }

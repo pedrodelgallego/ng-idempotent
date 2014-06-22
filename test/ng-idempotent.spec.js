@@ -23,14 +23,12 @@ describe('$idempotent', function(){
     });
 
     it('should call get only once if the request succeed', function(){
-      $httpBackend.
-        when('GET', endpoint).
-        respond({collection: [{}, {}]}, {});
+      $httpBackend.when('GET', endpoint).respond(200, '');
       sut.get(endpoint);
 
       $httpBackend.expectGET(endpoint);
       $httpBackend.flush();
-    });
+    })
 
     it('should add the uuid to the tracker', function(){
       $httpBackend.when('GET', endpoint).respond(200, '');
@@ -69,13 +67,28 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     });
 
-    it('returns a $q promise', function(){
+    it('returns a $q promise with a success method', function(){
       $httpBackend.when('GET', endpoint).respond(500,'')
 
       var promise = sut.get(endpoint);
-      expect(typeof promise.then).toBe('function');
+      expect(typeof promise.success).toBe('function');
       $httpBackend.flush();
-    })
+    });
+
+    it('should resolve the pormise as succeed if the request succeed', function(){
+      $httpBackend.when('GET', endpoint). respond({userId: 1234}, {});
+      var promise = sut.get(endpoint);
+
+      promise.success(function(data, status, headers, config){
+        expect(data.userId).toBe(1234);
+        expect(status).toBe(200);
+        expect(typeof headers).toBe('function');
+        expect(config.method).toBe('GET');
+      });
+
+      $httpBackend.flush();
+    });
+
 
     it('returns a primise with a message', function(){
       $httpBackend.when('GET', endpoint).respond(500,'')
@@ -83,7 +96,8 @@ describe('$idempotent', function(){
       var promise = sut.get(endpoint);
       expect(promise.message.messageType).toBe(sut.GET_MESSAGE);
       $httpBackend.flush();
-    })
+    });
+
 
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
