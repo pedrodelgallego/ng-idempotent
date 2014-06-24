@@ -89,8 +89,7 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     });
 
-
-    it('returns a primise with a message', function(){
+    it('returns a promise with a message', function(){
       $httpBackend.when('GET', endpoint).respond(500,'')
 
       var promise = sut.get(endpoint);
@@ -98,11 +97,9 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     });
 
-
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend.verifyNoOutstandingRequest();
     });
   });
-
 });
