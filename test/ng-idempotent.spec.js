@@ -75,7 +75,15 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     });
 
-    it('should resolve the pormise as succeed if the request succeed', function(){
+    it('returns a $q promise with a error method', function(){
+      $httpBackend.when('GET', endpoint).respond(500,'')
+
+      var promise = sut.get(endpoint);
+      expect(typeof promise.error).toBe('function');
+      $httpBackend.flush();
+    });
+
+    it('should resolve the promise as succeed if the request succeed', function(){
       $httpBackend.when('GET', endpoint). respond({userId: 1234}, {});
       var promise = sut.get(endpoint);
 

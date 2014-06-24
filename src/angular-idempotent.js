@@ -158,6 +158,13 @@
           ngIdempotent.tracker[uuid] = new Message(uuid);
           promise.message = ngIdempotent.tracker[uuid];
 
+          promise.error = function(fn) {
+            promise.then(null, function(response) {
+              fn(response.data, response.status, response.headers, config);
+            });
+            return promise;
+          };
+
           promise.success = function(fn) {
             promise.then(function(resolved) {
               fn(resolved.data, resolved.status, resolved.headers, resolved.config);
