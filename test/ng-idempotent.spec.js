@@ -46,7 +46,7 @@ describe('$idempotent', function(){
     });
 
     it('should create a UUID for this specific message', function(){
-      $httpBackend.when('GET', endpoint).respond(500,'')
+      $httpBackend.when('GET', endpoint).respond(200,'')
       spyOn(sut, 'generateUUID');
       sut.get(endpoint);
       expect(sut.generateUUID).toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe('$idempotent', function(){
     });
 
     it('returns a $q promise', function(){
-      $httpBackend.when('GET', endpoint).respond(500,'')
+      $httpBackend.when('GET', endpoint).respond(200,'')
 
       var promise = sut.get(endpoint);
       expect(typeof promise.then).toBe('function');
@@ -68,7 +68,7 @@ describe('$idempotent', function(){
     });
 
     it('returns a $q promise with a success method', function(){
-      $httpBackend.when('GET', endpoint).respond(500,'')
+      $httpBackend.when('GET', endpoint).respond(200,'')
 
       var promise = sut.get(endpoint);
       expect(typeof promise.success).toBe('function');
@@ -83,22 +83,34 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     });
 
-    it('should resolve the promise as succeed if the request succeed', function(){
-      $httpBackend.when('GET', endpoint). respond({userId: 1234}, {});
+
+    it('should resolve the promise as error if the request error', function(){
+      $httpBackend.expectGET(endpoint).respond(200, 'bad error', {'request-id': '123'});
       var promise = sut.get(endpoint);
 
-      promise.success(function(data, status, headers, config){
+      promise.error(function(data, status, headers, config){
+        expect(status).toBe(102);
+      });
+
+      $httpBackend.flush();
+    });
+
+
+    it('should resolve the promise as succeed if the request succeed', function(){
+      $httpBackend.when('GET', endpoint). respond( {userId: 1234}, {});
+      var promise = sut.get(endpoint);
+
+      promise.success(function(data, status, headers){
         expect(data.userId).toBe(1234);
         expect(status).toBe(200);
         expect(typeof headers).toBe('function');
-        expect(config.method).toBe('GET');
       });
 
       $httpBackend.flush();
     });
 
     it('returns a promise with a message', function(){
-      $httpBackend.when('GET', endpoint).respond(500,'')
+      $httpBackend.when('GET', endpoint).respond(200,'')
 
       var promise = sut.get(endpoint);
       expect(promise.message.messageType).toBe(sut.GET_MESSAGE);

@@ -128,6 +128,8 @@
    */
   angular.module('ngIdempotent', [])
     .factory('$idempotent', ['$http', '$q', '$timeout', function($http, $q, $timeout) {
+      function noop(){}
+
       // var $resourceMinErr = angular.$$minErr('$idempotent');
       function Message(uuid){
         this.messageType = ngIdempotent.GET_MESSAGE;
@@ -159,8 +161,8 @@
           promise.message = ngIdempotent.tracker[uuid];
 
           promise.error = function(fn) {
-            promise.then(null, function(response) {
-              fn(response.data, response.status, response.headers, config);
+            promise.catch(function(response) {
+              fn(response.data, response.status, response.headers, response.config);
             });
             return promise;
           };
@@ -172,12 +174,12 @@
             return promise;
           };
 
-          $http.get(endpoint).success(function(response, status, headers, config){
-            deferred.resolve({
-              data: response,
-              status: status,
-              headers: headers,
-              config: config
+          $http.get(endpoint).then(function(response){
+            (response.status === 200 ? deferred.resolve : deferred.reject)({
+              data: response.data,
+              status: response.status,
+              headers: response.headers,
+              config: response.config
             });
           });
 
