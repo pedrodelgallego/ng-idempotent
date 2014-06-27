@@ -151,7 +151,7 @@
           });
         },
 
-        get: function(endpoint) {
+        get: function(endpoint, config) {
           debugger;
           var deferred = $q.defer(),
               promise  = deferred.promise,
@@ -174,7 +174,7 @@
             return promise;
           };
 
-          $http.get(endpoint).then(function(response){
+          $http.get(endpoint, config).then(function(response){
             (response.status === 200 ? deferred.resolve : deferred.reject)({
               data: response.data,
               status: response.status,
