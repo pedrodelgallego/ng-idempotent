@@ -33,8 +33,6 @@ describe('$idempotent', function(){
     it('should pass the headers to $http', function(){
       $httpBackend.expectGET(endpoint, {"Accept":"application/xml"}).respond(200, '');
       sut.get(endpoint, {headers: {"Accept":"application/xml"}});
-
-      $httpBackend.expectGET(endpoint);
       $httpBackend.flush();
     })
 
