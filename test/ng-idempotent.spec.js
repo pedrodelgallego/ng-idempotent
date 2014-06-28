@@ -81,26 +81,6 @@ describe('$idempotent', function(){
         $httpBackend.flush();
       });
 
-      it('returns a $q promise with a error method', function(){
-        $httpBackend.when('GET', endpoint).respond(500,'')
-
-        var promise = sut.get(endpoint);
-        expect(typeof promise.error).toBe('function');
-        $httpBackend.flush();
-      });
-
-      it('should resolve the promise as error if the request error', function(){
-        $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-
-        var promise = sut.get(endpoint);
-
-        promise.error(function(data, status, headers, config){
-          expect(status).toBe(500);
-        });
-        $httpBackend.flush();
-      });
-
-
       it('should resolve the promise as succeed if the request succeed', function(){
         $httpBackend.when('GET', endpoint). respond( {userId: 1234}, {});
         var promise = sut.get(endpoint);
@@ -120,6 +100,67 @@ describe('$idempotent', function(){
         var promise = sut.get(endpoint);
         expect(promise.message.messageType).toBe(sut.GET_MESSAGE);
         $httpBackend.flush();
+      });
+
+      describe('retry', function(){
+        it('returns a $q promise with a error method', function(){
+          $httpBackend.when('GET', endpoint).respond(500,'')
+
+          var promise = sut.get(endpoint, {attempts: 1});
+          expect(typeof promise.error).toBe('function');
+          $httpBackend.flush();
+        });
+
+        it('reties only n number of times when psss the attemp param', function(){
+          $httpBackend.when('GET', endpoint).respond(500,'')
+          var promise = sut.get(endpoint, {attempts: 1});
+          $httpBackend.flush();
+        });
+
+        it('returns a $q promise with a error method', function(){
+          $httpBackend.when('GET', endpoint).respond(500,'')
+
+          var promise = sut.get(endpoint, {attempt: 1});
+          expect(typeof promise.error).toBe('function');
+          $httpBackend.flush();
+        });
+
+        it('should resolve the promise as error if the request error', function(){
+          var failed;
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+
+          var promise = sut.get(endpoint);
+
+          promise.error(function(data, status, headers, config){
+            failed = true;
+            expect(status).toBe(500);
+          });
+
+          $httpBackend.flush();
+          expect(failed).toBe(true);
+        });
+
+        it('should resolve the promise as error if the request error', function(){
+          var failed;
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.expectGET(endpoint).respond(200, 'bad error');
+
+          var promise = sut.get(endpoint);
+
+          promise.success(function(data, status, headers, config){
+            failed = false;
+          });
+
+          $httpBackend.flush();
+          expect(failed).toBe(false);
+        });
       });
     });
 

@@ -138,6 +138,10 @@
       };
 
       var ngIdempotent = {
+        defaults:{
+          retries: 5
+        },
+
         IN_PROGRESS: "in_progress",
 
         GET_MESSAGE: "GET",
@@ -152,8 +156,8 @@
         },
 
         get: function(endpoint, config) {
-          debugger;
-          var deferred = $q.defer(),
+          var attempt = (config && config.attempts) || ngIdempotent.defaults.retries,
+              deferred = $q.defer(),
               promise  = deferred.promise,
               uuid = ngIdempotent.generateUUID();
 
@@ -174,13 +178,30 @@
             return promise;
           };
 
-          $http.get(endpoint, config)
-            .success(function(data, status, headers, config){
+          function  get(){
+            return $http.get(endpoint, config)
+              .success(resolveRequest(deferred))
+              .error(rejectRequest(deferred));
+          };
+
+          function resolveRequest(deferred){
+            return function(data, status, headers, config){
               deferred.resolve({data: data, status: status, headers: headers, config: config});
-            })
-            .error(function(data, status, headers, config){
-              deferred.reject({data: data, status: status, headers: headers, config: config});
-            });
+            }
+          }
+
+          function rejectRequest(deferred){
+            return function(data, status, headers, config){
+              if (attempt > 1){
+                attempt--;
+                get(endpoint, config, deferred);
+              } else {
+                deferred.reject({data: data, status: status, headers: headers, config: config});
+              }
+            }
+          }
+
+          get(endpoint, config, deferred);
 
           return promise;
         }
