@@ -13,7 +13,6 @@ describe('$idempotent', function(){
   it('should create a module', function(){ expect(sut).toBeDefined(); });
 
   describe('.get', function(){
-
     beforeEach(inject(function ($injector) {
       $httpBackend = $injector.get("$httpBackend");
     }));
@@ -60,7 +59,7 @@ describe('$idempotent', function(){
     });
 
     it('should repeat the retry the get', function() {
-      $httpBackend.whenGET(endpoint).respond(500);
+      $httpBackend.whenGET(endpoint).respond(200);
       sut.get(endpoint);
       $httpBackend.flush();
     });
@@ -90,15 +89,14 @@ describe('$idempotent', function(){
         $httpBackend.flush();
       });
 
-
       it('should resolve the promise as error if the request error', function(){
-        $httpBackend.expectGET(endpoint).respond(200, 'bad error', {'request-id': '123'});
+        $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+
         var promise = sut.get(endpoint);
 
         promise.error(function(data, status, headers, config){
-          expect(status).toBe(102);
+          expect(status).toBe(500);
         });
-
         $httpBackend.flush();
       });
 

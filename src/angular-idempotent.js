@@ -174,14 +174,13 @@
             return promise;
           };
 
-          $http.get(endpoint, config).then(function(response){
-            (response.status === 200 ? deferred.resolve : deferred.reject)({
-              data: response.data,
-              status: response.status,
-              headers: response.headers,
-              config: response.config
+          $http.get(endpoint, config)
+            .success(function(data, status, headers, config){
+              deferred.resolve({data: data, status: status, headers: headers, config: config});
+            })
+            .error(function(data, status, headers, config){
+              deferred.reject({data: data, status: status, headers: headers, config: config});
             });
-          });
 
           return promise;
         }
