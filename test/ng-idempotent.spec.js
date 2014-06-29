@@ -148,8 +148,6 @@ describe('$idempotent', function(){
           var failed;
           $httpBackend.expectGET(endpoint).respond(500, 'bad error');
           $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
           $httpBackend.expectGET(endpoint).respond(200, 'bad error');
 
           var promise = sut.get(endpoint);

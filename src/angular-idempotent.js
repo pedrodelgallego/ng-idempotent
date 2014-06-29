@@ -137,6 +137,12 @@
         this.UUID = uuid;
       };
 
+      function resolveRequest(deferred){
+        return function(data, status, headers, config){
+          deferred.resolve({data: data, status: status, headers: headers, config: config});
+        }
+      }
+
       var ngIdempotent = {
         defaults:{
           retries: 5
@@ -178,23 +184,16 @@
             return promise;
           };
 
-          function  get(){
+          function get(endpoint, config, deferred){
             return $http.get(endpoint, config)
               .success(resolveRequest(deferred))
-              .error(rejectRequest(deferred));
+              .error(rejectRequest(deferred, get, attempt--));
           };
 
-          function resolveRequest(deferred){
-            return function(data, status, headers, config){
-              deferred.resolve({data: data, status: status, headers: headers, config: config});
-            }
-          }
-
-          function rejectRequest(deferred){
+          function rejectRequest(deferred, method, attempt){
             return function(data, status, headers, config){
               if (attempt > 1){
-                attempt--;
-                get(endpoint, config, deferred);
+                method(endpoint, config, deferred);
               } else {
                 deferred.reject({data: data, status: status, headers: headers, config: config});
               }
