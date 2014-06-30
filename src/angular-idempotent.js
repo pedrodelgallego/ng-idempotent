@@ -150,6 +150,10 @@
 
         IN_PROGRESS: "in_progress",
 
+        FAILED: "failed",
+
+        SUCCEED: "SUCCEED",
+
         GET_MESSAGE: "GET",
 
         tracker: {},
@@ -169,9 +173,11 @@
 
           ngIdempotent.tracker[uuid] = new Message(uuid);
           promise.message = ngIdempotent.tracker[uuid];
+          config = angular.extend({}, config, {uuid: uuid});
 
           promise.error = function(fn) {
             promise.catch(function(response) {
+              promise.message.status = ngIdempotent.FAILED;
               fn(response.data, response.status, response.headers, response.config);
             });
             return promise;
@@ -192,7 +198,7 @@
 
           function rejectRequest(deferred, method, attempt){
             return function(data, status, headers, config){
-              if (attempt > 1){
+              if (attempt > 1) {
                 method(endpoint, config, deferred);
               } else {
                 deferred.reject({data: data, status: status, headers: headers, config: config});

@@ -138,6 +138,7 @@ describe('$idempotent', function(){
           promise.error(function(data, status, headers, config){
             failed = true;
             expect(status).toBe(500);
+            expect(promise.message.status).toBe(sut.FAILED);
           });
 
           $httpBackend.flush();
