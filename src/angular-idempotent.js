@@ -185,6 +185,7 @@
 
           promise.success = function(fn) {
             promise.then(function(resolved) {
+              promise.message.status = ngIdempotent.SUCCEED;
               fn(resolved.data, resolved.status, resolved.headers, resolved.config);
             });
             return promise;

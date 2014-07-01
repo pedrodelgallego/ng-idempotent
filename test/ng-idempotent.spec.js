@@ -143,6 +143,7 @@ describe('$idempotent', function(){
 
           $httpBackend.flush();
           expect(failed).toBe(true);
+          expect(promise.message.status).toBe(sut.FAILED);
         });
 
         it('should resolve the promise as error if the request error', function(){
@@ -154,11 +155,13 @@ describe('$idempotent', function(){
           var promise = sut.get(endpoint);
 
           promise.success(function(data, status, headers, config){
+            expect(promise.message.status).toBe(sut.SUCCEED);
             failed = false;
           });
 
           $httpBackend.flush();
           expect(failed).toBe(false);
+          expect(promise.message.status).toBe(sut.SUCCEED);
         });
       });
     });
