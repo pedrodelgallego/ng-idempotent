@@ -124,13 +124,13 @@
    *
    * @property {Array.<Object>} pendingRequests Array of config objects for currently pending
    *   requests. This is primarily meant to be used for debugging purposes.
+
    *
    */
   angular.module('ngIdempotent', [])
     .factory('$idempotent', ['$http', '$q', '$timeout', function($http, $q, $timeout) {
       function noop(){}
 
-      // var $resourceMinErr = angular.$$minErr('$idempotent');
       function Message(uuid){
         this.messageType = ngIdempotent.GET_MESSAGE;
         this.status = ngIdempotent.IN_PROGRESS;
