@@ -172,7 +172,7 @@
               promise  = deferred.promise,
               uuid = ngIdempotent.generateUUID();
 
-          ngIdempotent.tracker[uuid] = new Message(uuid);
+          ngIdempotent.tracker[uuid] = new Message(uuid, config);
           promise.message = ngIdempotent.tracker[uuid];
           config = angular.extend({}, config, {uuid: uuid});
 

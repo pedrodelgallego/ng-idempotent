@@ -33,7 +33,7 @@ describe('$idempotent', function(){
       $httpBackend.expectGET(endpoint, {"Accept":"application/xml"}).respond(200, '');
       sut.get(endpoint, {headers: {"Accept":"application/xml"}});
       $httpBackend.flush();
-    })
+    });
 
     it('should add the uuid to the tracker', function(){
       $httpBackend.when('GET', endpoint).respond(200, '');
@@ -58,8 +58,16 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     });
 
+    it('should be able to define waiting time', function(){
+      $httpBackend.expectGET(endpoint).respond(200, '');
+      var promise = sut.get(endpoint, {wait: 2000});
+      expect(promise.message.wait).toBe(2000);
+      $httpBackend.flush();
+    });
+
     it('should have a default wait time of 1 second', function(){
       $httpBackend.when('GET', endpoint).respond(200,'')
+      var promise = sut.get(endpoint);
       expect(promise.message.wait).toBe(1000);
       $httpBackend.flush();
     });
