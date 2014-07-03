@@ -131,10 +131,11 @@
     .factory('$idempotent', ['$http', '$q', '$timeout', function($http, $q, $timeout) {
       function noop(){}
 
-      function Message(uuid){
+      function Message(uuid, config){
         this.messageType = ngIdempotent.GET_MESSAGE;
         this.status = ngIdempotent.IN_PROGRESS;
         this.UUID = uuid;
+        this.wait = config && config.wait || 1000
       };
 
       function resolveRequest(deferred){
