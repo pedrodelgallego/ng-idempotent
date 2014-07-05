@@ -1,13 +1,14 @@
 'use strict';
 
 describe('$idempotent', function(){
-  var sut, $httpBackend, endpoint = 'an/end/point';
+  var sut, $httpBackend, $timeout, endpoint = 'an/end/point';
 
   beforeEach(module('ngIdempotent'));
 
   beforeEach(inject(function ($injector) {
     sut = $injector.get('$idempotent');
     $httpBackend = $injector.get("$httpBackend");
+    $timeout = $injector.get("$timeout");
   }));
 
   it('should create a module', function(){ expect(sut).toBeDefined(); });
@@ -96,41 +97,38 @@ describe('$idempotent', function(){
 
       it('returns a promise with a message', function(){
         $httpBackend.when('GET', endpoint).respond(200,'')
-
         var promise = sut.get(endpoint);
         expect(promise.message.messageType).toBe(sut.GET_MESSAGE);
+        $timeout.flush();
         $httpBackend.flush();
       });
 
       describe('retry', function(){
         it('returns a $q promise with a error method', function(){
-          $httpBackend.when('GET', endpoint).respond(500,'')
-
+          $httpBackend.when('GET', endpoint).respond(200,'')
           var promise = sut.get(endpoint, {attempts: 1});
           expect(typeof promise.error).toBe('function');
           $httpBackend.flush();
+          $timeout.flush();
         });
 
         it('reties only n number of times when psss the attemp param', function(){
-          $httpBackend.when('GET', endpoint).respond(500,'')
+          $httpBackend.when('GET', endpoint).respond(200,'');
           var promise = sut.get(endpoint, {attempts: 1});
           $httpBackend.flush();
+          $timeout.flush();
         });
 
         it('returns a $q promise with a error method', function(){
-          $httpBackend.when('GET', endpoint).respond(500,'')
-
+          $httpBackend.when('GET', endpoint).respond(200,'');
           var promise = sut.get(endpoint, {attempt: 1});
           expect(typeof promise.error).toBe('function');
           $httpBackend.flush();
+          $timeout.flush();
         });
 
-        it('should resolve the promise as error if the request error', function(){
+        iit('should reject the promise as error if the request error', function(){
           var failed;
-          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
           $httpBackend.expectGET(endpoint).respond(500, 'bad error');
 
           var promise = sut.get(endpoint);
@@ -141,16 +139,30 @@ describe('$idempotent', function(){
             expect(promise.message.status).toBe(sut.FAILED);
           });
 
+          $timeout.flush();
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
           $httpBackend.flush();
+
+          $timeout.flush();
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.flush();
+
+          $timeout.flush();
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.flush();
+
+          $timeout.flush();
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $httpBackend.flush();
+
+          $timeout.flush();
           expect(failed).toBe(true);
           expect(promise.message.status).toBe(sut.FAILED);
         });
 
-        it('should resolve the promise as error if the request error', function(){
+        it('should resolve the promise as sucess if the request error', function(){
           var failed;
           $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.expectGET(endpoint).respond(200, 'bad error');
 
           var promise = sut.get(endpoint);
 
@@ -160,8 +172,22 @@ describe('$idempotent', function(){
           });
 
           $httpBackend.flush();
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $timeout.flush();
+
+          $httpBackend.flush();
+          $httpBackend.expectGET(endpoint).respond(200, 'yaaay!');
+          $timeout.flush();
+
+          $httpBackend.flush();
+          $timeout.flush();
+
           expect(failed).toBe(false);
           expect(promise.message.status).toBe(sut.SUCCEED);
+        });
+
+        afterEach(function() {
+          $timeout.verifyNoPendingTasks();
         });
       });
     });

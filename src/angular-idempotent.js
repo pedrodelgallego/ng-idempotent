@@ -192,16 +192,19 @@
             return promise;
           };
 
-          function get(endpoint, config, deferred){
+          function get(endpoint, config, deferred) {
             return $http.get(endpoint, config)
               .success(resolveRequest(deferred))
               .error(rejectRequest(deferred, get, attempt--));
           };
 
+
           function rejectRequest(deferred, method, attempt){
             return function(data, status, headers, config){
               if (attempt > 1) {
-                method(endpoint, config, deferred);
+                $timeout(function(){
+                  method(endpoint, config, deferred);
+                }, config.wait || 1000);
               } else {
                 deferred.reject({data: data, status: status, headers: headers, config: config});
               }
