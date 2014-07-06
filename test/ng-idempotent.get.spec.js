@@ -139,23 +139,25 @@ describe('$idempotent', function(){
             expect(promise.message.status).toBe(sut.FAILED);
           });
 
-          $timeout.flush();
-          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
           $httpBackend.flush();
-
-          $timeout.flush();
           $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.flush();
-
           $timeout.flush();
+
+          $httpBackend.flush();
           $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.flush();
-
           $timeout.flush();
+
+          $httpBackend.flush();
           $httpBackend.expectGET(endpoint).respond(500, 'bad error');
-          $httpBackend.flush();
-
           $timeout.flush();
+
+          $httpBackend.flush();
+          $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+          $timeout.flush();
+
+          $httpBackend.flush();
+          $timeout.flush();
+
           expect(failed).toBe(true);
           expect(promise.message.status).toBe(sut.FAILED);
         });
