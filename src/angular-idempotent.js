@@ -214,7 +214,11 @@
           get(endpoint, config, deferred);
 
           return promise;
+        },
+
+        post: function(){
         }
+
       };
 
       return ngIdempotent;

@@ -127,7 +127,7 @@ describe('$idempotent', function(){
           $timeout.flush();
         });
 
-        iit('should reject the promise as error if the request error', function(){
+        it('should reject the promise as error if the request error', function(){
           var failed;
           $httpBackend.expectGET(endpoint).respond(500, 'bad error');
 
