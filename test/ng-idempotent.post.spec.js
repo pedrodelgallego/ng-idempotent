@@ -13,7 +13,7 @@ describe('$idempotent', function(){
 
   it('should create a module', function(){ expect(sut).toBeDefined(); });
 
-  describe('.get', function(){
+  describe('.post', function(){
     beforeEach(inject(function ($injector) {
       $httpBackend = $injector.get("$httpBackend");
     }));
@@ -21,6 +21,14 @@ describe('$idempotent', function(){
     it('is callable', function(){
       expect(typeof sut.post).toBe('function');
     });
+
+    it('should call post only once if the request succeed', function(){
+      $httpBackend.when('POST', endpoint).respond(200, '');
+      sut.post(endpoint);
+
+      $httpBackend.expectPOST(endpoint);
+      $httpBackend.flush();
+    })
 
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
