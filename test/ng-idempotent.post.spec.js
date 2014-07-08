@@ -30,6 +30,12 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     })
 
+    it('should pass the data to $http', function(){
+      $httpBackend.expectPOST(endpoint, {hola: 'hola'}).respond(200, '');
+      sut.post(endpoint, {hola: 'hola'});
+      $httpBackend.flush();
+    })
+
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend.verifyNoOutstandingRequest();
