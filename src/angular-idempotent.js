@@ -216,8 +216,8 @@
           return promise;
         },
 
-        post: function(endpoint, data){
-          return $http.post(endpoint, data);
+        post: function(endpoint, data, config){
+          return $http.post(endpoint, data, config);
         }
 
       };

@@ -36,6 +36,13 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     })
 
+    it('should pass the headers to $http', function(){
+      var headers = {"Accept":"application/xml","Content-Type":"application/json;charset=utf-8"};
+      $httpBackend.expectPOST(endpoint, {}, headers).respond(200, '');
+      sut.post(endpoint, {}, {headers: headers});
+      $httpBackend.flush();
+    })
+
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend.verifyNoOutstandingRequest();

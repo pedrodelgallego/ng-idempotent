@@ -18,7 +18,7 @@ describe('$idempotent', function(){
       $httpBackend = $injector.get("$httpBackend");
     }));
 
-    it('can be callable', function(){
+    it('is callable', function(){
       expect(typeof sut.get).toBe('function');
     });
 
