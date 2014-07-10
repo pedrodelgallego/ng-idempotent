@@ -59,6 +59,13 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     });
 
+    it('should create a UUID for this specific message', function(){
+      $httpBackend.when('POST', endpoint).respond(200,'')
+      spyOn(sut, 'generateUUID');
+      sut.post(endpoint);
+      expect(sut.generateUUID).toHaveBeenCalled();
+      $httpBackend.flush();
+    });
 
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
