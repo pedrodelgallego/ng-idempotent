@@ -217,6 +217,9 @@
         },
 
         post: function(endpoint, data, config){
+          var uuid = ngIdempotent.generateUUID();
+          ngIdempotent.tracker[uuid] = new Message(uuid, config);
+
           return $http.post(endpoint, data, config);
         }
 

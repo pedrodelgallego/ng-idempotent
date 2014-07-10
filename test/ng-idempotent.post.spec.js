@@ -43,6 +43,23 @@ describe('$idempotent', function(){
       $httpBackend.flush();
     })
 
+
+    it('should add the uuid to the tracker', function(){
+      $httpBackend.when('POST', endpoint).respond(200, '');
+      sut.post(endpoint);
+
+      var numberOfMessages = 0;
+      for (var i in sut.tracker){
+        numberOfMessages++;
+        expect(i.length).toBe(48);
+      }
+
+      expect(numberOfMessages).toBe(1)
+      expect(sut.tracker)
+      $httpBackend.flush();
+    });
+
+
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend.verifyNoOutstandingRequest();
