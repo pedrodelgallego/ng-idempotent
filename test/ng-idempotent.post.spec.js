@@ -85,6 +85,19 @@ describe('$idempotent', function(){
         $httpBackend.flush();
       });
 
+      it('should resolve the promise as succeed if the request succeed', function(){
+        $httpBackend.when('POST', endpoint). respond( {userId: 1234}, {});
+        var promise = sut.post(endpoint);
+
+        promise.success(function(data, status, headers){
+          expect(data.userId).toBe(1234);
+          expect(status).toBe(200);
+          expect(typeof headers).toBe('function');
+        });
+
+        $httpBackend.flush();
+      });
+
     });
 
 
