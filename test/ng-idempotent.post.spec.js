@@ -76,6 +76,15 @@ describe('$idempotent', function(){
         expect(typeof promise.then).toBe('function');
         $httpBackend.flush();
       });
+
+      it('returns a $q promise with a success method', function(){
+        $httpBackend.when('POST', endpoint).respond(200,'')
+
+        var promise = sut.post(endpoint);
+        expect(typeof promise.success).toBe('function');
+        $httpBackend.flush();
+      });
+
     });
 
 
