@@ -131,8 +131,8 @@
     .factory('$idempotent', ['$http', '$q', '$timeout', function($http, $q, $timeout) {
       function noop(){}
 
-      function Message(uuid, config){
-        this.messageType = ngIdempotent.GET_MESSAGE;
+      function Message(uuid, config, messageType){
+        this.messageType = messageType;
         this.status = ngIdempotent.IN_PROGRESS;
         this.UUID = uuid;
         this.wait = config && config.wait || 1000
@@ -157,6 +157,8 @@
 
         GET_MESSAGE: "GET",
 
+        POST_MESSAGE: "POST",
+
         tracker: {},
 
         generateUUID: function () {
@@ -172,7 +174,7 @@
               promise  = deferred.promise,
               uuid = ngIdempotent.generateUUID();
 
-          ngIdempotent.tracker[uuid] = new Message(uuid, config);
+          ngIdempotent.tracker[uuid] = new Message(uuid, config, ngIdempotent.GET_MESSAGE);
           promise.message = ngIdempotent.tracker[uuid];
           config = angular.extend({}, config, {uuid: uuid});
 
@@ -217,10 +219,18 @@
         },
 
         post: function(endpoint, data, config){
-          var uuid = ngIdempotent.generateUUID();
-          ngIdempotent.tracker[uuid] = new Message(uuid, config);
+          var deferred = $q.defer(),
+              promise  = deferred.promise,
+              uuid = ngIdempotent.generateUUID();
 
-          return $http.post(endpoint, data, config);
+          ngIdempotent.tracker[uuid] = new Message(uuid, config, ngIdempotent.POST_MESSAGE);
+          promise = deferred.promise,
+
+
+          promise = $http.post(endpoint, data, config);
+          promise.message = ngIdempotent.tracker[uuid];
+
+          return promise;
         }
 
       };

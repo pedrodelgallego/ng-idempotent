@@ -98,6 +98,14 @@ describe('$idempotent', function(){
         $httpBackend.flush();
       });
 
+      it('returns a promise with a message', function(){
+        $httpBackend.when('POST', endpoint).respond(200,'')
+        var promise = sut.post(endpoint);
+        expect(promise.message.messageType).toBe(sut.POST_MESSAGE);
+        $timeout.flush();
+        $httpBackend.flush();
+      });
+
     });
 
 
