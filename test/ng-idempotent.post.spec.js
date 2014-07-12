@@ -105,9 +105,21 @@ describe('$idempotent', function(){
         $timeout.flush();
         $httpBackend.flush();
       });
-
     });
 
+    describe('retry', function(){
+      it('returns a $q promise with a error method', function(){
+        $httpBackend.when('POST', endpoint).respond(200,'')
+        var promise = sut.post(endpoint, {attempts: 1});
+        expect(typeof promise.error).toBe('function');
+        $httpBackend.flush();
+        $timeout.flush();
+      });
+
+      afterEach(function() {
+        $timeout.verifyNoPendingTasks();
+      });
+    });
 
     afterEach(function() {
       $httpBackend.verifyNoOutstandingExpectation();
