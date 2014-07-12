@@ -219,16 +219,56 @@
         },
 
         post: function(endpoint, data, config){
-          var deferred = $q.defer(),
+          var attempt = (config && config.attempts) || ngIdempotent.defaults.retries,
+              deferred = $q.defer(),
               promise  = deferred.promise,
               uuid = ngIdempotent.generateUUID();
 
           ngIdempotent.tracker[uuid] = new Message(uuid, config, ngIdempotent.POST_MESSAGE);
           promise = deferred.promise,
 
+                    promise.message = ngIdempotent.tracker[uuid];
+          config = angular.extend({}, config, {uuid: uuid});
 
-          promise = $http.post(endpoint, data, config);
-          promise.message = ngIdempotent.tracker[uuid];
+          promise.error = function(fn) {
+            promise.catch(function(response) {
+              promise.message.status = ngIdempotent.FAILED;
+              fn(response.data, response.status, response.headers, response.config);
+            });
+            return promise;
+          };
+
+          promise.success = function(fn) {
+            promise.then(function(resolved) {
+              promise.message.status = ngIdempotent.SUCCEED;
+              fn(resolved.data, resolved.status, resolved.headers, resolved.config);
+            });
+            return promise;
+          };
+
+          function   post(endpoint, data, config, deferred) {
+            return $http.post(endpoint, data, config)
+              .success(resolveRequest(deferred))
+              .error(rejectRequest(deferred, post, attempt--));
+          };
+
+
+          function rejectRequest(deferred, method, attempt){
+            return function(data, status, headers, config){
+              if (attempt > 1) {
+                $timeout(function(){
+                  method(endpoint, data, config, deferred);
+                }, config.wait || 1000);
+              } else {
+                deferred.reject({data: data, status: status, headers: headers, config: config});
+              }
+            }
+          }
+
+          post(endpoint, data, config, deferred);
+
+          // promise = $http.post(endpoint, data, config);
+          // promise.message = ngIdempotent.tracker[uuid];
 
           return promise;
         }
