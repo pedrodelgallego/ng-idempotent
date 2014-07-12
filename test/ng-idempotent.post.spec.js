@@ -160,9 +160,9 @@ describe('$idempotent', function(){
 
       it('should resolve the promise as sucess if the request error', function(){
         var failed;
-        $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+        $httpBackend.expectPOST(endpoint).respond(500, 'bad error');
 
-        var promise = sut.get(endpoint);
+        var promise = sut.post(endpoint);
 
         promise.success(function(data, status, headers, config){
           expect(promise.message.status).toBe(sut.SUCCEED);
@@ -170,11 +170,11 @@ describe('$idempotent', function(){
         });
 
         $httpBackend.flush();
-        $httpBackend.expectGET(endpoint).respond(500, 'bad error');
+        $httpBackend.expectPOST(endpoint).respond(500, 'bad error');
         $timeout.flush();
 
         $httpBackend.flush();
-        $httpBackend.expectGET(endpoint).respond(200, 'yaaay!');
+        $httpBackend.expectPOST(endpoint).respond(200, 'yaaay!');
         $timeout.flush();
 
         $httpBackend.flush();
