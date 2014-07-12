@@ -116,6 +116,13 @@ describe('$idempotent', function(){
         $timeout.flush();
       });
 
+      it('reties only n number of times when psss the attemp param', function(){
+        $httpBackend.when('GET', endpoint).respond(500,'');
+        var promise = sut.get(endpoint, {attempts: 1});
+        $httpBackend.flush();
+        $timeout.flush();
+      });
+
       afterEach(function() {
         $timeout.verifyNoPendingTasks();
       });
