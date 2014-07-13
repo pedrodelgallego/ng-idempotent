@@ -267,9 +267,6 @@
 
           post(endpoint, data, config, deferred);
 
-          // promise = $http.post(endpoint, data, config);
-          // promise.message = ngIdempotent.tracker[uuid];
-
           return promise;
         }
 
