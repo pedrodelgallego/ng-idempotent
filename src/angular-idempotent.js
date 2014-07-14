@@ -144,6 +144,16 @@
         }
       }
 
+      function defineErrorHandler(promise){
+        return function(fn) {
+          promise.catch(function(response) {
+            promise.message.status = ngIdempotent.FAILED;
+            fn(response.data, response.status, response.headers, response.config);
+          });
+          return promise;
+        };
+      }
+
       var ngIdempotent = {
         defaults:{
           retries: 5
@@ -178,13 +188,7 @@
           promise.message = ngIdempotent.tracker[uuid];
           config = angular.extend({}, config, {uuid: uuid});
 
-          promise.error = function(fn) {
-            promise.catch(function(response) {
-              promise.message.status = ngIdempotent.FAILED;
-              fn(response.data, response.status, response.headers, response.config);
-            });
-            return promise;
-          };
+          promise.error = defineErrorHandler(promise);
 
           promise.success = function(fn) {
             promise.then(function(resolved) {
@@ -230,13 +234,7 @@
                     promise.message = ngIdempotent.tracker[uuid];
           config = angular.extend({}, config, {uuid: uuid});
 
-          promise.error = function(fn) {
-            promise.catch(function(response) {
-              promise.message.status = ngIdempotent.FAILED;
-              fn(response.data, response.status, response.headers, response.config);
-            });
-            return promise;
-          };
+          promise.error = defineErrorHandler(promise);
 
           promise.success = function(fn) {
             promise.then(function(resolved) {
