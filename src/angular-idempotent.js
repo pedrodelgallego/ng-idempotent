@@ -154,6 +154,16 @@
         };
       }
 
+      function  defineSuccesHandler(promise){
+        return function(fn) {
+          promise.then(function(resolved) {
+            promise.message.status = ngIdempotent.SUCCEED;
+            fn(resolved.data, resolved.status, resolved.headers, resolved.config);
+          });
+          return promise;
+        }
+      }
+
       var ngIdempotent = {
         defaults:{
           retries: 5
@@ -189,21 +199,13 @@
           config = angular.extend({}, config, {uuid: uuid});
 
           promise.error = defineErrorHandler(promise);
-
-          promise.success = function(fn) {
-            promise.then(function(resolved) {
-              promise.message.status = ngIdempotent.SUCCEED;
-              fn(resolved.data, resolved.status, resolved.headers, resolved.config);
-            });
-            return promise;
-          };
+          promise.success = defineSuccesHandler(promise);
 
           function get(endpoint, config, deferred) {
             return $http.get(endpoint, config)
               .success(resolveRequest(deferred))
               .error(rejectRequest(deferred, get, attempt--));
           };
-
 
           function rejectRequest(deferred, method, attempt){
             return function(data, status, headers, config){
@@ -235,14 +237,7 @@
           config = angular.extend({}, config, {uuid: uuid});
 
           promise.error = defineErrorHandler(promise);
-
-          promise.success = function(fn) {
-            promise.then(function(resolved) {
-              promise.message.status = ngIdempotent.SUCCEED;
-              fn(resolved.data, resolved.status, resolved.headers, resolved.config);
-            });
-            return promise;
-          };
+          promise.success = defineSuccesHandler(promise);
 
           function   post(endpoint, data, config, deferred) {
             return $http.post(endpoint, data, config)
