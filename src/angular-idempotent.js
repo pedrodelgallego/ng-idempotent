@@ -164,6 +164,18 @@
         }
       }
 
+      function rejectRequest(deferred, method, endpoint, attempt){
+        return function(data, status, headers, config){
+          if (attempt > 1) {
+            $timeout(function(){
+              method(endpoint, config, deferred);
+            }, config.wait || 1000);
+          } else {
+            deferred.reject({data: data, status: status, headers: headers, config: config});
+          }
+        }
+      }
+
       var ngIdempotent = {
         defaults:{
           retries: 5
@@ -204,20 +216,8 @@
           function get(endpoint, config, deferred) {
             return $http.get(endpoint, config)
               .success(resolveRequest(deferred))
-              .error(rejectRequest(deferred, get, attempt--));
+              .error(rejectRequest(deferred, get, endpoint, attempt--));
           };
-
-          function rejectRequest(deferred, method, attempt){
-            return function(data, status, headers, config){
-              if (attempt > 1) {
-                $timeout(function(){
-                  method(endpoint, config, deferred);
-                }, config.wait || 1000);
-              } else {
-                deferred.reject({data: data, status: status, headers: headers, config: config});
-              }
-            }
-          }
 
           get(endpoint, config, deferred);
 
@@ -242,11 +242,10 @@
           function   post(endpoint, data, config, deferred) {
             return $http.post(endpoint, data, config)
               .success(resolveRequest(deferred))
-              .error(rejectRequest(deferred, post, attempt--));
+              .error(rejectRequest(deferred, post, endpoint, attempt--));
           };
 
-
-          function rejectRequest(deferred, method, attempt){
+          function rejectRequest(deferred, method, endpoint, attempt){
             return function(data, status, headers, config){
               if (attempt > 1) {
                 $timeout(function(){
