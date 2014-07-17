@@ -204,12 +204,12 @@
           var attempt = (config && config.attempts) || ngIdempotent.defaults.retries,
               deferred = $q.defer(),
               promise  = deferred.promise,
-              uuid = ngIdempotent.generateUUID();
+              uuid = ngIdempotent.generateUUID(),
+              config = angular.extend({}, config, {uuid: uuid});
 
           ngIdempotent.tracker[uuid] = new Message(uuid, config, ngIdempotent.GET_MESSAGE);
-          promise.message = ngIdempotent.tracker[uuid];
-          config = angular.extend({}, config, {uuid: uuid});
 
+          promise.message = ngIdempotent.tracker[uuid];
           promise.error = defineErrorHandler(promise);
           promise.success = defineSuccesHandler(promise);
 
@@ -228,14 +228,12 @@
           var attempt = (config && config.attempts) || ngIdempotent.defaults.retries,
               deferred = $q.defer(),
               promise  = deferred.promise,
-              uuid = ngIdempotent.generateUUID();
+              uuid = ngIdempotent.generateUUID()
+              config = angular.extend({}, config, {uuid: uuid});
 
           ngIdempotent.tracker[uuid] = new Message(uuid, config, ngIdempotent.POST_MESSAGE);
-          promise = deferred.promise,
 
           promise.message = ngIdempotent.tracker[uuid];
-          config = angular.extend({}, config, {uuid: uuid});
-
           promise.error = defineErrorHandler(promise);
           promise.success = defineSuccesHandler(promise);
 
@@ -261,7 +259,6 @@
 
           return promise;
         }
-
       };
 
       return ngIdempotent;
