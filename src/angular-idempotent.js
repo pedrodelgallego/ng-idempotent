@@ -233,13 +233,13 @@
           ngIdempotent.tracker[uuid] = new Message(uuid, config, ngIdempotent.POST_MESSAGE);
           promise = deferred.promise,
 
-                    promise.message = ngIdempotent.tracker[uuid];
+          promise.message = ngIdempotent.tracker[uuid];
           config = angular.extend({}, config, {uuid: uuid});
 
           promise.error = defineErrorHandler(promise);
           promise.success = defineSuccesHandler(promise);
 
-          function   post(endpoint, data, config, deferred) {
+          function post(endpoint, data, config, deferred) {
             return $http.post(endpoint, data, config)
               .success(resolveRequest(deferred))
               .error(rejectRequest(deferred, post, endpoint, attempt--));
