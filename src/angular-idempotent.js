@@ -164,28 +164,24 @@
         }
       }
 
-      function rejectGetRequest(deferred, method, endpoint, attempt){
-        return function(data, status, headers, config){
-          if (attempt > 1) {
-            $timeout(function(){
-              method(endpoint, config, deferred);
-            }, config.wait || 1000);
-          } else {
-            deferred.reject({data: data, status: status, headers: headers, config: config});
+      function retryRequestInMiliseconds(method, endpoint, data, config, deferred){
+        $timeout(function(){
+          if (method.name === 'post'){
+            method(endpoint, data, config, deferred);
+          } else if (method.name === 'get'){
+            method(endpoint, config, deferred);
           }
-        }
+        }, config.wait || 1000);
       }
 
-      function rejectPostRequest(deferred, method, endpoint, attempt){
+      function rejectRequest(deferred, method, endpoint, attempt){
         return function(data, status, headers, config){
           if (attempt > 1) {
-            $timeout(function(){
-              method(endpoint, data, config, deferred);
-            }, config.wait || 1000);
+            retryRequestInMiliseconds(method, endpoint, data, config, deferred);
           } else {
             deferred.reject({data: data, status: status, headers: headers, config: config});
           }
-        }
+        };
       }
 
       var ngIdempotent = {
@@ -228,7 +224,7 @@
           function get(endpoint, config, deferred) {
             return $http.get(endpoint, config)
               .success(resolveRequest(deferred))
-              .error(rejectGetRequest(deferred, get, endpoint, attempt--));
+              .error(rejectRequest(deferred, get, endpoint, attempt--));
           };
 
           get(endpoint, config, deferred);
@@ -252,7 +248,7 @@
           function post(endpoint, data, config, deferred) {
             return $http.post(endpoint, data, config)
               .success(resolveRequest(deferred))
-              .error(rejectPostRequest(deferred, post, endpoint, attempt--));
+              .error(rejectRequest(deferred, post, endpoint, attempt--));
           };
 
           post(endpoint, data, config, deferred);
