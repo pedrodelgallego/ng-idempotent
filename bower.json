@@ -2,11 +2,11 @@
   "name": "ng-idempotent",
   "version": "0.0.1",
   "homepage": "https://github.com/pedrodelgallego/ng-idempotent",
+  "main": "./src/angular-idempotent.js",
   "authors": [
     "Pedro Del Gallego <pedro.delgallego@gmail.com>"
   ],
   "description": "A angular module that wraps the idempotent retry pattern",
-  "main": "src/angular-idempotent.js",
   "keywords": [
     "angular",
     "idempotent",
